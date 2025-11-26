@@ -1,50 +1,181 @@
-# Welcome to your Expo app 👋
+# Radio Taxi App - Mobile Application
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A full-featured taxi booking mobile application built with React Native and Expo. Supports both rider and driver roles with real-time location tracking and ride management.
 
-## Get started
+## Features
 
-1. Install dependencies
+### For Riders
+- **Interactive Map**: View your location and select pickup/destination points
+- **Route Preview**: See estimated route, distance, duration, and price before booking
+- **Live Tracking**: Track your driver's location in real-time
+- **Ride Management**: View ride status, driver details, and ride history
+- **Smart Pricing**: Dynamic pricing based on distance and estimated duration
 
-   ```bash
-   npm install
-   ```
+### For Drivers
+- **Available Rides**: Browse nearby ride requests
+- **Accept Rides**: View rider details and route before accepting
+- **Turn-by-Turn Navigation**: Navigate to pickup and destination points
+- **Ride Status Updates**: Update ride status (accepted, started, completed)
+- **Real-time Location Sharing**: Share your location with riders during trips
 
-2. Start the app
+## Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+- **Framework**: React Native with Expo
+- **Language**: TypeScript
+- **Maps**: React Native Maps
+- **Routing**: Multiple providers (OpenRouteService, OSRM, local fallback)
+- **Navigation**: Expo Router (file-based routing)
+- **State Management**: React hooks
+- **Real-time**: WebSocket connection to backend
+- **Location**: Expo Location API
+- **Authentication**: JWT token storage
 
-In the output, you'll find options to open the app in a
+## Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js (v16 or higher)
+- Expo CLI (`npm install -g expo-cli`)
+- iOS Simulator (Mac) or Android Emulator
+- Backend server running (see `taxi-server/README.md`)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Quick Start
 
-## Get a fresh project
-
-When you're ready, run:
+1. **Configure environment variables**
 
 ```bash
-npm run reset-project
+cp .env.example .env
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Edit `.env` with your configuration:
+```env
+EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:4000
+EXPO_PUBLIC_OPENROUTE_API_KEY=your_api_key_here
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
+```
 
-## Learn more
+> **Note**: Use your computer's local IP address (not localhost) for the API URL to work on physical devices.
 
-To learn more about developing your project with Expo, look at the following resources:
+2. **Install dependencies**
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm install
+```
 
-## Join the community
+3. **Start the development server**
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4. **Run on device/simulator**
+
+- Press `i` for iOS simulator
+- Press `a` for Android emulator
+- Scan QR code with Expo Go app for physical device
+
+## Project Structure
+
+```
+radio-taxi-app/
+├── app/                    # Expo Router screens
+│   ├── _layout.tsx        # Root layout with auth logic
+│   └── map-demo.tsx       # Main map screen
+├── components/            # React components
+│   ├── driver-home.tsx   # Driver's main screen
+│   ├── driver-navigation.tsx  # Turn-by-turn navigation
+│   ├── driver-screen.tsx # Driver ride management
+│   ├── login-screen.tsx  # Authentication screen
+│   ├── main-map.tsx      # Rider's map interface
+│   ├── map-picker-modal.tsx   # Location picker
+│   ├── menu-modal.tsx    # User menu
+│   ├── ride-details-modal.tsx # Ride information
+│   ├── route-modal.tsx   # Available rides for drivers
+│   └── route-preview-modal.tsx # Route preview before booking
+├── hooks/                 # Custom React hooks
+│   ├── use-auth.ts       # Authentication logic
+│   ├── use-driver-rides.ts    # Driver ride management
+│   ├── use-location.ts   # Location tracking
+│   ├── use-routing.ts    # Route calculation (multi-provider)
+│   └── use-websocket.ts  # WebSocket connection
+├── utils/                 # Utility functions
+│   ├── api.ts            # API client
+│   ├── pricing.ts        # Price calculation
+│   └── ws.ts             # WebSocket helpers
+└── types/                 # TypeScript definitions
+    └── ride.ts           # Ride-related types
+```
+
+## Key Components
+
+### Routing System (`hooks/use-routing.ts`)
+Multi-tier routing with automatic fallback:
+1. **Primary**: OpenRouteService (requires API key)
+2. **Backup**: OSRM public server (free, no key required)
+3. **Fallback**: Local S-curve algorithm (offline support)
+
+### Authentication (`hooks/use-auth.ts`)
+- JWT token-based authentication
+- Secure token storage
+- Auto-login on app restart
+- Support for rider and driver roles
+
+### Real-time Updates (`hooks/use-websocket.ts`)
+- WebSocket connection to backend
+- Real-time ride status updates
+- Live driver location tracking
+- Automatic reconnection
+
+## Available Scripts
+
+- `npm start` - Start Expo development server
+- `npm run android` - Run on Android emulator
+- `npm run ios` - Run on iOS simulator
+- `npm run web` - Run in web browser
+
+## Configuration
+
+### Map Centering
+- Pickup marker positioned at 50% of screen height
+- Bottom panel takes 20% of screen height
+- Map coordinates use exact center (no offsets)
+
+### Routing Providers
+Configure in `hooks/use-routing.ts`:
+- Set API keys in `.env` file
+- Adjust timeout values if needed
+- Modify fallback algorithm parameters
+
+## Testing
+
+### Test Users (from seed data)
+**Rider**:
+- Email: `rider@test.com`
+- Password: `password`
+
+**Driver**:
+- Email: `driver@test.com`
+- Password: `password`
+
+## Troubleshooting
+
+### API Connection Issues
+- Ensure backend server is running on port 4000
+- Use your local IP (not localhost) in `EXPO_PUBLIC_API_URL`
+- Check firewall settings
+
+### Routing Failures
+- Verify API keys in `.env` file
+- Check network connectivity
+- Local fallback algorithm always works offline
+
+### Location Issues
+- Grant location permissions when prompted
+- Enable location services on your device
+- iOS simulator: Debug > Location > Custom Location
+
+## Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Maps](https://github.com/react-native-maps/react-native-maps)
+- [Expo Router](https://docs.expo.dev/router/introduction/)
+- [TypeScript](https://www.typescriptlang.org/)
+
